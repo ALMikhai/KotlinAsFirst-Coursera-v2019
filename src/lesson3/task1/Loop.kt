@@ -207,4 +207,31 @@ fun squareSequenceDigit(n: Int): Int = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun fibSequenceDigit(n: Int): Int = TODO()
+fun fibSequenceDigit(n: Int): Int {
+    if (n == 1 || n == 2)
+        return 1
+
+    var a = 1
+    var b = 1
+    var copyN = n - 2
+
+    while (true) {
+        val number: ArrayList<Int> = arrayListOf()
+        var c = a + b
+        a = b
+        b = c
+        var rank = 0
+        while (c > 0) {
+            number.add(c % 10)
+            c /= 10
+            rank++
+        }
+        if (rank < copyN) {
+            copyN -= rank
+        } else {
+            return number[rank - copyN]
+        }
+    }
+
+
+}
