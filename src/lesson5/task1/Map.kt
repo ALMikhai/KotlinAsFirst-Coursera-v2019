@@ -2,6 +2,9 @@
 
 package lesson5.task1
 
+import lesson1.task1.trackLength
+import kotlin.math.max
+
 /**
  * Пример
  *
@@ -280,4 +283,43 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> = TODO()
  *     450
  *   ) -> emptySet()
  */
-fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> = TODO()
+fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
+    val n = treasures.size
+    val w = capacity
+    var items: List<String> = treasures.keys.toList()
+
+    var arr: Array<Array<Int>> = Array(n + 1, { i -> Array(w + 1, { i -> 0 }) })
+    for (k in 1..n) {
+        for (s in 1..w) {
+            val weight = treasures[items[k - 1]]!!.first
+            val price = treasures[items[k - 1]]!!.second
+            if (s >= weight) {
+                arr[k][s] = max(arr[k - 1][s], arr[k - 1][s - weight] + price)
+            } else {
+                arr[k][s] = arr[k - 1][s]
+            }
+        }
+    }
+    var ans: MutableList<Int> = mutableListOf()
+    findAnswer(treasures, items, ans, arr, n, w)
+
+    return Array(ans.size, {i -> items[ans[i]]}).toSet()
+}
+
+fun findAnswer(
+    treasures: Map<String, Pair<Int, Int>>,
+    items: List<String>,
+    ans: MutableList<Int>,
+    arr: Array<Array<Int>>,
+    k: Int,
+    s: Int
+) {
+    if (arr[k][s] == 0)
+        return
+    if (arr[k - 1][s] == arr[k][s]) {
+        findAnswer(treasures, items, ans, arr, k - 1, s)
+    } else {
+        findAnswer(treasures, items, ans, arr, k - 1, s - treasures[items[k - 1]]!!.first)
+        ans.add(k - 1)
+    }
+}
