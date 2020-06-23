@@ -40,25 +40,6 @@ fun timeSecondsToStr(seconds: Int): String {
 }
 
 /**
- * Пример: консольный ввод
- */
-fun main() {
-    println("Введите время в формате ЧЧ:ММ:СС")
-    val line = readLine()
-    if (line != null) {
-        val seconds = timeStrToSeconds(line)
-        if (seconds == -1) {
-            println("Введённая строка $line не соответствует формату ЧЧ:ММ:СС")
-        } else {
-            println("Прошло секунд с начала суток: $seconds")
-        }
-    } else {
-        println("Достигнут <конец файла> в процессе чтения строки. Программа прервана")
-    }
-}
-
-
-/**
  * Средняя
  *
  * Дата представлена строкой вида "15 июля 2016".
@@ -225,4 +206,116 @@ fun fromRoman(roman: String): Int = TODO()
  * IllegalArgumentException должен бросаться даже если ошибочная команда не была достигнута в ходе выполнения.
  *
  */
-fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> = TODO()
+
+fun symbolsCheck(commands: String, legalChars: List<Char>) {
+    commands.forEach {
+        if (!legalChars.contains(it)) {
+            throw IllegalArgumentException()
+        }
+    }
+}
+
+fun bracesCheck(commands: String) {
+    val stack = mutableListOf<Char>()
+    commands.forEach {
+        if (it == '[')
+            stack.add('[')
+
+        if (it == ']') {
+            if (stack.isNotEmpty())
+                stack.removeAt(stack.size - 1)
+            else
+                throw IllegalArgumentException()
+        }
+    }
+    if (stack.isNotEmpty())
+        throw IllegalArgumentException()
+}
+
+fun findNextBrace(pos: Int, commands: String): Int {
+    val stack = mutableListOf<Char>('[')
+    var i = pos
+    while (stack.size != 0) {
+        i++
+        if (commands[i] == '[')
+            stack.add('[')
+        if (commands[i] == ']') {
+            stack.removeAt(stack.size - 1)
+        }
+    }
+    return i
+}
+
+fun findPrevBrace(pos: Int, commands: String): Int {
+    val stack = mutableListOf<Char>(']')
+    var i = pos
+    while (stack.size != 0) {
+        i--
+        if (commands[i] == ']')
+            stack.add(']')
+        if (commands[i] == '[') {
+            stack.removeAt(stack.size - 1)
+        }
+    }
+    return i
+}
+
+fun doActions(commands: String, operatedList: MutableList<Int>, positionNow: Int, limit: Int): Pair<Int, Int> {
+    var position = positionNow
+    var i = 0
+    var lim = limit
+    while (lim > 0 && i < commands.length) {
+        when (commands[i]) {
+            '>' -> {
+                if (position + 1 >= operatedList.size)
+                    throw IllegalStateException()
+                position++
+            }
+            '<' -> {
+                if (position - 1 < 0)
+                    throw IllegalStateException()
+                position--
+            }
+            '+' -> {
+                operatedList[position]++
+            }
+            '-' -> {
+                operatedList[position]--
+            }
+            '[' -> {
+                val j = findNextBrace(i, commands)
+                if (operatedList[position] == 0) {
+                    i = j
+                } else {
+                    val pair = doActions(commands.substring(i + 1, j), operatedList, position, lim - 1)
+                    position = pair.first
+                    lim = pair.second + 1
+                    i = j - 1
+                }
+            }
+            ']' -> {
+                if (operatedList[position] != 0) {
+                    i = findPrevBrace(i, commands) - 1
+                    lim++
+                }
+            }
+            ' ' -> {
+            }
+        }
+        i++
+        lim--
+    }
+
+    return Pair(position, lim)
+}
+
+fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
+    symbolsCheck(commands, listOf('>', '<', '+', '-', '[', ']', ' '))
+    bracesCheck(commands)
+    val operatedList = mutableListOf<Int>()
+    repeat(cells) {
+        operatedList.add(0)
+    }
+    doActions(commands, operatedList, cells / 2, limit)
+    return operatedList
+}

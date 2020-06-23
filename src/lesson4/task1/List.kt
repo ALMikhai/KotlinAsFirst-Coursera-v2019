@@ -256,4 +256,63 @@ fun roman(n: Int): String = TODO()
  * Например, 375 = "триста семьдесят пять",
  * 23964 = "двадцать три тысячи девятьсот шестьдесят четыре"
  */
-fun russian(n: Int): String = TODO()
+fun russian(n: Int): String {
+    val number = n.toString()
+    val list1 = listOf("один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять")
+    val list2 =
+        listOf("", "двадцать", "тридцать", "сорок", "пятьдесят", "шестьдесят", "семьдесят", "восемьдесят", "девяносто")
+    val list3 =
+        listOf("сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот")
+    val list4 = listOf(
+        "одна тысяча",
+        "две тысячи",
+        "три тысячи",
+        "четыре тысячи",
+        "пять тысяч",
+        "шесть тысяч",
+        "семь тысяч",
+        "восемь тысяч",
+        "девять тысяч"
+    )
+
+    val listTmp = listOf(
+        "десять", "одиннадцать", "двенадцать", "тринадцать", "четырнадцать",
+        "пятнадцать", "шестнадцать", "семнадцать", "восемнадцать", "девятнадцать"
+    )
+
+    val list = listOf(list3, list2, list4, list3, list2, list1)
+    var result = ""
+    var i = 0
+    loop@ while (i < number.length) {
+        if (number[i].toInt() - 48 == 0) {
+            if (6 - number.length + i == 2) {
+                result += " тысяч"
+            }
+            i++
+            continue@loop
+        }
+
+        if (i != 0)
+            result += " "
+
+        when {
+
+
+            (6 - number.length + i == 4 && number[i].toInt() - 48 == 1) -> {
+                result += listTmp[number[i + 1].toInt() - 48]
+                i += 2
+            }
+
+            (6 - number.length + i == 1 && number[i].toInt() - 48 == 1) -> {
+                result += listTmp[number[i + 1].toInt() - 48] + " тысяч"
+                i += 2
+            }
+
+            else -> {
+                result += list[6 - number.length + i][number[i].toInt() - 49]
+                i++
+            }
+        }
+    }
+    return result
+}

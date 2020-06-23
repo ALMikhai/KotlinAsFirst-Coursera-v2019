@@ -32,11 +32,7 @@ fun isNumberHappy(number: Int): Boolean {
  * Считать, что ферзи не могут загораживать друг друга.
  */
 fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int): Boolean {
-    if (x1 == x2 || y1 == y2)
-        return true
-    if (x1 + y1 == x2 + y2 || abs(y1 - x1) == abs(y2 - x2))
-        return true
-    return false
+    return (abs(x1 - x2) == abs(y1 - y2) || (x1 == x2) || (y1 == y2))
 }
 
 
